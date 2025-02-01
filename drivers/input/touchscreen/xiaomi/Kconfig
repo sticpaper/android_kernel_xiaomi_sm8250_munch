@@ -14,3 +14,11 @@ config TOUCHSCREEN_SUPPORT_NEW_GAME_MODE
 	  Say Y here if the device support new game mode
 
 	  If not support, say N.
+
+config TOUCHSCREEN_XIAOMI_GAMEMODE_NODE
+	bool "Touch Export Gamemode node into tp_common"
+	depends on TOUCHSCREEN_COMMON
+	help
+	  Say Y here export gamemode node into tp_common
+
+	  If not support, say N.

@@ -1,6 +1,9 @@
 #include <linux/kobject.h>
 
 extern struct kobject *touchpanel_kobj;
+#ifdef CONFIG_TOUCHSCREEN_XIAOMI_GAMEMODE_NODE
+extern struct kobject *touch_game_kobj;
+#endif
 
 struct tp_common_ops {
 	ssize_t (*show)(struct kobject *kobj, struct kobj_attribute *attr,
