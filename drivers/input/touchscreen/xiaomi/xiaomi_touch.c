@@ -1,4 +1,7 @@
 #include "xiaomi_touch.h"
+#ifdef CONFIG_TOUCHSCREEN_XIAOMI_GAMEMODE_NODE
+#include <linux/input/tp_common.h>
+#endif
 
 static struct xiaomi_touch_pdata *touch_pdata;
 int mi_log_level;
@@ -488,6 +491,381 @@ static ssize_t resolution_factor_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d", factor);
 }
 
+#ifdef CONFIG_TOUCHSCREEN_XIAOMI_GAMEMODE_NODE
+static ssize_t gamemode_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Game_Mode, GET_CUR_VALUE));
+}
+
+static ssize_t gamemode_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val) {
+		touch_pdata->touch_data->setModeValue(Touch_Game_Mode, 1);
+		touch_pdata->touch_data->setModeValue(Touch_Active_MODE, 1);
+	} else {
+		touch_pdata->touch_data->resetMode(0);
+	}
+
+	return count;
+}
+
+static ssize_t up_threshold_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_UP_THRESHOLD, GET_CUR_VALUE));
+}
+
+static ssize_t up_threshold_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_UP_THRESHOLD, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_UP_THRESHOLD, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_UP_THRESHOLD, val);
+	return count;
+}
+
+static ssize_t tolerance_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Tolerance, GET_CUR_VALUE));
+}
+
+static ssize_t tolerance_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_Tolerance, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_Tolerance, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_Tolerance, val);
+	return count;
+}
+
+#ifdef CONFIG_TOUCHSCREEN_SUPPORT_NEW_GAME_MODE
+static ssize_t aim_sensitivity_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Aim_Sensitivity, GET_CUR_VALUE));
+}
+
+static ssize_t aim_sensitivity_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_Aim_Sensitivity, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_Aim_Sensitivity, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_Aim_Sensitivity, val);
+	return count;
+}
+
+static ssize_t tap_stability_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Tap_Stability, GET_CUR_VALUE));
+}
+
+static ssize_t tap_stability_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_Tap_Stability, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_Tap_Stability, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_Tap_Stability, val);
+	return count;
+}
+
+static ssize_t expert_mode_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Expert_Mode, GET_CUR_VALUE));
+}
+
+static ssize_t expert_mode_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_Expert_Mode, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_Expert_Mode, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_Expert_Mode, val);
+	return count;
+}
+#else
+static ssize_t wgh_min_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Wgh_Min, GET_CUR_VALUE));
+}
+
+static ssize_t wgh_min_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_Wgh_Min, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_Wgh_Min, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_Wgh_Min, val);
+	return count;
+}
+
+static ssize_t wgh_max_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Wgh_Max, GET_CUR_VALUE));
+}
+
+static ssize_t wgh_max_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_Wgh_Max, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_Wgh_Max, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_Wgh_Max, val);
+	return count;
+}
+
+static ssize_t wgh_step_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Wgh_Step, GET_CUR_VALUE));
+}
+
+static ssize_t wgh_step_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_Wgh_Step, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_Wgh_Step, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_Wgh_Step, val);
+	return count;
+}
+#endif
+
+static ssize_t edge_filter_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", touch_pdata->touch_data->
+			getModeValue(Touch_Edge_Filter, GET_CUR_VALUE));
+}
+
+static ssize_t edge_filter_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	int rc, val;
+
+	rc = kstrtoint(buf, 10, &val);
+	if (rc)
+		return -EINVAL;
+
+	if (val > touch_pdata->touch_data->
+		getModeValue(Touch_Edge_Filter, GET_MAX_VALUE) ||
+		val < touch_pdata->touch_data->
+		getModeValue(Touch_Edge_Filter, GET_MIN_VALUE))
+		return -EINVAL;
+
+	touch_pdata->touch_data->setModeValue(Touch_Edge_Filter, val);
+	return count;
+}
+
+static ssize_t status_show(struct kobject *kobj,
+			       struct kobj_attribute *attr, char *buf)
+{
+	int i;
+	ssize_t count = 0;
+
+	count = scnprintf(buf, PAGE_SIZE, "Default:\n");
+	for (i = Touch_Game_Mode; i < Touch_Edge_Filter + 1; i++) {
+		count += scnprintf(buf + count, PAGE_SIZE - count, "%d\t",
+		touch_pdata->touch_data->getModeValue(i, GET_DEF_VALUE));
+	}
+
+	buf[count - 1] = '\n';
+	count += scnprintf(buf + count, PAGE_SIZE - count, "CUR:\n");
+	for (i = Touch_Game_Mode; i < Touch_Edge_Filter + 1; i++) {
+		count += scnprintf(buf + count, PAGE_SIZE - count, "%d\t",
+		touch_pdata->touch_data->getModeValue(i, GET_CUR_VALUE));
+	}
+
+	buf[count - 1] = '\n';
+	count += scnprintf(buf + count, PAGE_SIZE - count, "MIN:\n");
+	for (i = Touch_Game_Mode; i < Touch_Edge_Filter + 1; i++) {
+		count += scnprintf(buf + count, PAGE_SIZE - count, "%d\t",
+		touch_pdata->touch_data->getModeValue(i, GET_MIN_VALUE));
+	}
+
+	buf[count - 1] = '\n';
+	count += scnprintf(buf + count, PAGE_SIZE - count, "MAX:\n");
+	for (i = Touch_Game_Mode; i < Touch_Edge_Filter + 1; i++) {
+		count += scnprintf(buf + count, PAGE_SIZE - count, "%d\t",
+		touch_pdata->touch_data->getModeValue(i, GET_MAX_VALUE));
+	}
+
+	buf[count - 1] = '\n';
+	return count;
+}
+
+static ssize_t status_store(struct kobject *kobj,
+				struct kobj_attribute *attr, const char *buf,
+				size_t count)
+{
+	return count;
+}
+
+static struct tp_common_ops gamemode_ops = {
+	.show = gamemode_show,
+	.store = gamemode_store,
+};
+
+static struct tp_common_ops up_threshold_ops = {
+	.show = up_threshold_show,
+	.store = up_threshold_store,
+};
+
+static struct tp_common_ops tolerance_ops = {
+	.show = tolerance_show,
+	.store = tolerance_store,
+};
+
+#ifdef CONFIG_TOUCHSCREEN_SUPPORT_NEW_GAME_MODE
+static struct tp_common_ops aim_sensitivity_ops = {
+	.show = aim_sensitivity_show,
+	.store = aim_sensitivity_store,
+};
+
+static struct tp_common_ops tap_stability_ops = {
+	.show = tap_stability_show,
+	.store = tap_stability_store,
+};
+
+static struct tp_common_ops expert_mode_ops = {
+	.show = expert_mode_show,
+	.store = expert_mode_store,
+};
+#else
+static struct tp_common_ops wgh_min_ops = {
+	.show = wgh_min_show,
+	.store = wgh_min_store,
+};
+
+static struct tp_common_ops wgh_max_ops = {
+	.show = wgh_max_show,
+	.store = wgh_max_store,
+};
+
+static struct tp_common_ops wgh_step_ops = {
+	.show = wgh_step_show,
+	.store = wgh_step_store,
+};
+#endif
+
+static struct tp_common_ops edge_filter_ops = {
+	.show = edge_filter_show,
+	.store = edge_filter_store,
+};
+
+static struct tp_common_ops status_ops = {
+	.show = status_show,
+	.store = status_store,
+};
+#endif
+
 static DEVICE_ATTR(palm_sensor, (S_IRUGO | S_IWUSR | S_IWGRP), palm_sensor_show,
 		   palm_sensor_store);
 
@@ -665,6 +1043,24 @@ static int xiaomi_touch_probe(struct platform_device *pdev)
 		ret = -ENODEV;
 		goto sys_group_err;
 	}
+
+#ifdef CONFIG_TOUCHSCREEN_XIAOMI_GAMEMODE_NODE
+	// register gamemode node into tp_common
+	tp_common_set_gamemode_ops(&gamemode_ops);
+	tp_common_set_up_threshold_ops(&up_threshold_ops);
+	tp_common_set_tolerance_ops(&tolerance_ops);
+#ifdef CONFIG_TOUCHSCREEN_SUPPORT_NEW_GAME_MODE
+	tp_common_set_aim_sensitivity_ops(&aim_sensitivity_ops);
+	tp_common_set_tap_stability_ops(&tap_stability_ops);
+	tp_common_set_expert_mode_ops(&expert_mode_ops);
+#else
+	tp_common_set_wgh_min_ops(&wgh_min_ops);
+	tp_common_set_wgh_max_ops(&wgh_max_ops);
+	tp_common_set_wgh_step_ops(&wgh_step_ops);
+#endif
+	tp_common_set_edge_filter_ops(&edge_filter_ops);
+	tp_common_set_touch_status_ops(&status_ops);
+#endif
 
 	MI_TOUCH_LOGI(1, "%s %s: over\n", MI_TAG, __func__);
 

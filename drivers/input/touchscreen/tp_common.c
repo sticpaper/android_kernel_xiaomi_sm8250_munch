@@ -29,6 +29,22 @@ int tp_common_set_##type##_ops(struct tp_common_ops *ops)           \
 
 TS_ENABLE_FOPS(double_tap)
 TS_ENABLE_FOPS(fod_status)
+#ifdef CONFIG_TOUCHSCREEN_XIAOMI_GAMEMODE_NODE
+TOUCHGAME_FOPS(gamemode)
+TOUCHGAME_FOPS(up_threshold)
+TOUCHGAME_FOPS(tolerance)
+#ifdef CONFIG_TOUCHSCREEN_SUPPORT_NEW_GAME_MODE
+TOUCHGAME_FOPS(aim_sensitivity)
+TOUCHGAME_FOPS(tap_stability)
+TOUCHGAME_FOPS(expert_mode)
+#else
+TOUCHGAME_FOPS(wgh_min)
+TOUCHGAME_FOPS(wgh_max)
+TOUCHGAME_FOPS(wgh_step)
+#endif
+TOUCHGAME_FOPS(edge_filter)
+TOUCHGAME_FOPS(touch_status)
+#endif
 
 static int __init tp_common_init(void)
 {
